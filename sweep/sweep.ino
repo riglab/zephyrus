@@ -1,3 +1,5 @@
+
+#include <Servo.h>
 #include <math.h>
 #define PI 3.141592653589793
 
@@ -8,9 +10,19 @@ int ramp_samples[num_samples];
 int count = 1;
 int inByte = '0';
 
-void setup()
-{
-  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+
+Servo v;
+Servo h;
+
+int pos = 45;  
+
+void setup() {
+  
+  v.attach(A0); 
+  h.attach(A1);
+  pinMode(A14, OUTPUT); 
+
+  Serial.begin(9600);
   while(Serial == 0); 
   for (int i = 0; i < num_samples; i++)
   {
@@ -28,8 +40,28 @@ void setup()
     ramp_samples[j] = j*8 - 2048;
   }
 
-  pinMode(A14, OUTPUT);
+
   analogWriteResolution(12);
+
+  
+}
+
+void loop() {
+
+
+
+  for (pos = 60; pos <= 70; pos += 1) {
+    v.write(pos);    
+    h.write(pos);  
+    puff();        
+    delay(25); 
+  }
+  for (pos = 60; pos >= 20; pos -= 1) {
+    v.write(pos);
+    h.write(pos);
+    puff();
+    delay(25); 
+  }
 }
 
 void play_data(int value)
@@ -38,17 +70,13 @@ void play_data(int value)
   //Serial.println(value);
 }
 
-void loop()
-{
+
+void puff() {
+
   int i = 0;
   int sample_rate = 100;
 
-  if (Serial.available()) {
-    inByte = Serial.read();
-  }
-
-  if (inByte == '1')
-  {
+  
     for (i = 0; i < num_samples; i++)
   {
     play_data(sine_samples[i]);
@@ -85,13 +113,6 @@ void loop()
       } 
     }    
   }
-    Serial.println("Success");
-    Serial.println(sample_rate);
-    Serial.println(count);
-    count++;
-    Serial.flush();
-    inByte = '0';
-    } 
-  }
-  //while(Serial.available() == 0);
-  //Serial.read();}
+  
+}
+
